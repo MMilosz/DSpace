@@ -27,6 +27,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.servlet.http.HttpServletRequest;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.comparator.NameAscendingComparator;
@@ -35,6 +36,7 @@ import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
+import org.dspace.web.ContextUtil;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.proxy.HibernateProxyHelper;
 
@@ -115,10 +117,51 @@ public class Collection extends DSpaceObject implements DSpaceObjectLegacySuppor
         this.predefinedUUID = uuid;
     }
 
+    /**
+     * TODO wording
+     *
+     * Get the name in the preferred language, if possible. The language should be obtained from the {@link Context}
+     * by using the {@link ContextUtil} class, which will call the getLocale() method. Note that the mentioned method
+     * reads locale from the 'Accept-Language' request's header and falls back to current user's language and if it can't
+     * be found, uses the getDefaultLocale() from the {@link org.dspace.core.I18nUtil} to get either the locale
+     * from the dspace.cfg 'default.locale' property or default JVM's language.
+     *
+     * @param language - the preferred locale
+     * @return null (if not found) or the name of the Collection with language:
+     *          - any - if there is only one dc.title
+     *          - any - if there is more than one dc.title AND it doesn't match with the preferred locale
+     *          - specified by user - if was found
+     */
+    private String getName(String language) {
+        var list = getCollectionService()
+                .getMetadata(this, MetadataSchemaEnum.DC.getName(), "title", null, Item.ANY);
+
+        String value = null;
+
+        // return null if empty
+        if (list.isEmpty()) {
+            return value;
+        }
+
+        // return any language if only one option
+        if (list.size() == 1) {
+            value = list.get(0).getValue();
+            return value;
+        }
+
+        // return preferred language
+        value = getCollectionService()
+                .getMetadataFirstValue(this, MetadataSchemaEnum.DC.getName(), "title", null, language);
+
+        return value;
+    }
+
     @Override
     public String getName() {
-        String value = getCollectionService()
-            .getMetadataFirstValue(this, MetadataSchemaEnum.DC.getName(), "title", null, Item.ANY);
+        Context context = ContextUtil.obtainCurrentRequestContext();
+        String language = context.getCurrentLocale().getLanguage();
+        String value = getName(language);
+
         return value == null ? "" : value;
     }
 

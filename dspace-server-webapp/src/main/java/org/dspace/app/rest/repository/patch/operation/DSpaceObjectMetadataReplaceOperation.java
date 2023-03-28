@@ -83,7 +83,6 @@ public class DSpaceObjectMetadataReplaceOperation<R extends DSpaceObject> extend
             this.replaceAllMetadata(context, dso, dsoService);
             return;
         }
-
         // replace all metadata for existing key
         if (index == null) {
             this.replaceMetadataFieldMetadata(context, dso, dsoService, metadataField, metadataValue);
@@ -125,7 +124,7 @@ public class DSpaceObjectMetadataReplaceOperation<R extends DSpaceObject> extend
                                               MetadataField metadataField, MetadataValueRest metadataValue) {
         try {
             dsoService.clearMetadata(context, dso, metadataField.getMetadataSchema().getName(),
-                    metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+                    metadataField.getElement(), metadataField.getQualifier(), Item.ANY); // TODO TEST if everything is okay
             dsoService.addAndShiftRightMetadata(context, dso, metadataField.getMetadataSchema().getName(),
                     metadataField.getElement(), metadataField.getQualifier(), metadataValue.getLanguage(),
                     metadataValue.getValue(), metadataValue.getAuthority(), metadataValue.getConfidence(), -1);
