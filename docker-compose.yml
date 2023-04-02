@@ -20,7 +20,11 @@ services:
       # Uncomment to set a non-default value for dspace.server.url or dspace.ui.url
       # dspace__P__server__P__url: http://localhost:8080/server
       # dspace__P__ui__P__url: http://localhost:4000
-      dspace__P__name: 'DSpace Started with Docker Compose'
+      dspace__P__name: 'DSpace kontrybucje'
+      # locales
+      default__P__locale: 'pl'
+      webui__P__supported__P__locales: 'pl, en, de'
+      rest__P__properties__P__exposed: 'default.locale'
       # db.url: Ensure we are using the 'dspacedb' image for our database
       db__P__url: 'jdbc:postgresql://dspacedb:5432/dspace'
       # solr.server: Ensure we are using the 'dspacesolr' image for Solr
@@ -28,7 +32,7 @@ services:
       # proxies.trusted.ipranges: This setting is required for a REST API running in Docker to trust requests
       # from the host machine. This IP range MUST correspond to the 'dspacenet' subnet defined above.
       proxies__P__trusted__P__ipranges: '172.23.0'
-    image: "${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-7_x-test}"
+    image: "mmsz7/dspace-api-contrib:test-v1"
     build:
       context: .
       dockerfile: Dockerfile.test
